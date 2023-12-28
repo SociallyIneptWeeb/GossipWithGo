@@ -20,6 +20,7 @@ func GetThreads(c *fiber.Ctx) error {
 	}
 
 	categoryId := c.Query("id")
+	title := c.Query("title")
 
 	var threads []models.Thread
 	var result *gorm.DB
@@ -28,13 +29,14 @@ func GetThreads(c *fiber.Ctx) error {
 		result = database.DB.
 			Preload(clause.Associations).
 			Table("threads t").
+			Where("t.title ILIKE ?", "%"+title+"%").
 			Order("t.updated_at desc").
 			Find(&threads)
 	} else {
 		result = database.DB.
 			Preload(clause.Associations).
 			Table("threads t").
-			Where("t.category_id = ?", categoryId).
+			Where("t.category_id = ? AND t.title ILIKE ?", categoryId, "%"+title+"%").
 			Order("t.updated_at desc").
 			Find(&threads)
 	}

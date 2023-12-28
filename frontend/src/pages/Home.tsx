@@ -14,9 +14,10 @@ export default function Home() {
   const user = useSelector((state: RootState) => state.auth.user)
   const [formModelOpen, setFormModelOpen] = useState(false)
   const [categoryFilter, setCategoryFilter] = useState(0)
+  const [searchFilter, setSearchFilter] = useState('')
   const { displayToast } = useToast()
 
-  const { data, isLoading, isError } = useGetThreadsQuery(categoryFilter)
+  const { data, isLoading, isError } = useGetThreadsQuery({id: categoryFilter, title: searchFilter})
   const [ createThread, { isLoading: isCreating } ] = useCreateThreadMutation()
 
   if (user === null) {
@@ -97,19 +98,22 @@ export default function Home() {
           </DialogActions>
         </Box>
       </Dialog>
-      <FormControl sx={{ maxWidth: 'fit-content', marginTop: 1 }}>
-        <InputLabel>Category</InputLabel>
-        <Select
-          value={categoryFilter}
-          label="Category"
-          onChange={(e) => setCategoryFilter(e.target.value as number)}
-        >
-          <MenuItem value={0}>All Categories</MenuItem>
-          <MenuItem value={1}>General</MenuItem>
-          <MenuItem value={2}>Fight me</MenuItem>
-          <MenuItem value={3}>Just curious</MenuItem>
-        </Select>
-      </FormControl>
+      <Stack spacing={{ xs: 1, sm: 2 }} direction='row' useFlexGap flexWrap='wrap' alignItems='flex-end'>
+        <FormControl sx={{ maxWidth: 'fit-content', marginTop: 1 }}>
+          <InputLabel>Category</InputLabel>
+          <Select
+            value={categoryFilter}
+            label="Category"
+            onChange={(e) => setCategoryFilter(e.target.value as number)}
+          >
+            <MenuItem value={0}>All Categories</MenuItem>
+            <MenuItem value={1}>General</MenuItem>
+            <MenuItem value={2}>Fight me</MenuItem>
+            <MenuItem value={3}>Just curious</MenuItem>
+          </Select>
+        </FormControl>
+        <TextField label='Search by title' variant='outlined' value={searchFilter} onChange={(e) => setSearchFilter(e.target.value)} />
+      </Stack>
       <Stack spacing={2} mt={2} divider={<Divider />}>
         {
           data?.map((thread) => (

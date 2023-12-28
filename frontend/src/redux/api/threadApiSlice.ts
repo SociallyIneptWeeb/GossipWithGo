@@ -1,13 +1,13 @@
 import { apiSlice } from "./apiSlice"
-import { Message, Thread, ThreadReq } from "../types"
+import { Message, Thread, ThreadReq, ThreadsReq } from "../types"
 
 export const threadApiSlice = apiSlice.injectEndpoints({
   endpoints: builder => ({
-    getThreads: builder.query<Thread[], number>({
-      query: (categoryId) => ({
+    getThreads: builder.query<Thread[], ThreadsReq>({
+      query: (body) => ({
         url: '/threads',
         method: 'GET',
-        params: { id: categoryId }
+        params: body
       }),
       providesTags: (result, error) => [{ type: 'Threads', id: 'LIST' }]
     }),

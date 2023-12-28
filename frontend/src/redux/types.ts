@@ -67,6 +67,11 @@ export interface Thread extends Base {
   edited_at: string
 }
 
+export interface ThreadsReq {
+  id: number
+  title: string
+}
+
 export interface ThreadReq extends Partial<Thread> {
   user_id: number,
   category_id: number
