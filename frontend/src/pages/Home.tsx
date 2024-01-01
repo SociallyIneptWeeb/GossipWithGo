@@ -1,7 +1,7 @@
 import { useSelector } from 'react-redux'
 import { RootState } from '../redux/store'
 import { useCreateThreadMutation, useGetThreadsQuery } from '../redux/api/threadApiSlice'
-import { Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, Divider, FormControl, FormControlLabel, FormLabel, InputLabel, MenuItem, Radio, RadioGroup, Select, Stack, TextField, Typography } from '@mui/material'
+import { Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, Divider, FormControl, FormControlLabel, FormLabel, InputLabel, MenuItem, Pagination, Radio, RadioGroup, Select, Stack, TextField, Typography } from '@mui/material'
 import Error from './Error'
 import ThreadCard from '../components/ThreadCard'
 import { AddCircleOutlineRounded } from '@mui/icons-material'
@@ -15,9 +15,11 @@ export default function Home() {
   const [formModelOpen, setFormModelOpen] = useState(false)
   const [categoryFilter, setCategoryFilter] = useState(0)
   const [searchFilter, setSearchFilter] = useState('')
+  const [pageNumber, setPageNumber] = useState(1)
+  const pageSize = 5
   const { displayToast } = useToast()
 
-  const { data, isLoading, isError } = useGetThreadsQuery({id: categoryFilter, title: searchFilter})
+  const { data, isLoading, isError } = useGetThreadsQuery({id: categoryFilter, title: searchFilter, page: pageNumber})
   const [ createThread, { isLoading: isCreating } ] = useCreateThreadMutation()
 
   if (user === null) {
@@ -116,11 +118,17 @@ export default function Home() {
       </Stack>
       <Stack spacing={2} mt={2} divider={<Divider />}>
         {
-          data?.map((thread) => (
+          data?.threads.map((thread) => (
             <ThreadCard key={thread.id} thread={thread} user={user}/>
           ))
         }
       </Stack>
+      {
+        data?.count !== undefined ? data.count === 0 
+        ? <Typography variant='h6' sx={{ marginTop: 2 }}>No threads found</Typography>
+        : <Pagination count={Math.ceil(data?.count / pageSize)} page={pageNumber} onChange={(e, page) => setPageNumber(page)} sx={{ marginTop: 2, marginLeft: 'auto' }} />
+        : <Typography variant='h6' sx={{ marginTop: 2 }}>Unable to fetch threads</Typography>
+      }
     </Box>
   )
 }

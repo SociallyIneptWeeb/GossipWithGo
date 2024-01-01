@@ -97,11 +97,11 @@ export default function Thread() {
           isCreator ? 
           <>
             <Box display='flex' flexDirection='row' paddingRight={1} paddingTop={1}>
-              <IconButton sx={{ marginLeft: 'auto' }}>
-                <Edit color='primary' onClick={() => setEditFormOpen(true)} />
+              <IconButton sx={{ marginLeft: 'auto' }} onClick={() => setEditFormOpen(true)}>
+                <Edit color='primary' />
               </IconButton>
-              <IconButton>
-                <Delete color='error' onClick={() => setDeleteConfirmOpen(true)} />
+              <IconButton onClick={() => setDeleteConfirmOpen(true)}>
+                <Delete color='error' />
               </IconButton>
             </Box>
 
@@ -171,7 +171,7 @@ export default function Thread() {
      
         <Divider />
         <Box display='flex' flexDirection={{xs: 'column', sm: 'row'}}>
-          <Box display='flex' flexDirection='column' padding={3} alignItems='center' minWidth='fit-content'>
+          <Box display='flex' flexDirection='column' padding={3} alignItems='center' minWidth='fit-content' justifyContent='center'>
             <AvatarIcon name={thread.creator.username} />
             <Typography variant='subtitle1'>
               {isCreator ? 'You' : thread.creator.username}

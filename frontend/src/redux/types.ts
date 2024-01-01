@@ -67,9 +67,15 @@ export interface Thread extends Base {
   edited_at: string
 }
 
+export interface ThreadsRes {
+  threads: Thread[]
+  count: number
+}
+
 export interface ThreadsReq {
   id: number
   title: string
+  page: number
 }
 
 export interface ThreadReq extends Partial<Thread> {

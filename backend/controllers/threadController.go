@@ -10,6 +10,22 @@ import (
 	"gorm.io/gorm/clause"
 )
 
+const THREADS_PER_PAGE = 5
+
+// scope for filtering threads by category id
+func ThreadCategoryId(categoryIds []string) func(db *gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		return db.Where("category_id IN (?)", categoryIds)
+	}
+}
+
+// scope for filtering threads by title
+func ThreadTitle(title string) func(db *gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		return db.Where("title ILIKE ?", "%"+title+"%")
+	}
+}
+
 func GetThreads(c *fiber.Ctx) error {
 	err := CheckAccessToken(c)
 	if err != nil {
@@ -21,25 +37,42 @@ func GetThreads(c *fiber.Ctx) error {
 
 	categoryId := c.Query("id")
 	title := c.Query("title")
+	page := c.Query("page")
+
+	pageNumber, err := strconv.Atoi(page)
+	if err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"message": "could not parse page number",
+		})
+	}
 
 	var threads []models.Thread
 	var result *gorm.DB
+	var count int64
+	var categoryIds []string
 
 	if categoryId == "0" {
-		result = database.DB.
-			Preload(clause.Associations).
-			Table("threads t").
-			Where("t.title ILIKE ?", "%"+title+"%").
-			Order("t.updated_at desc").
-			Find(&threads)
+		// all categories
+		categoryIds = append(categoryIds, "1", "2", "3")
 	} else {
-		result = database.DB.
-			Preload(clause.Associations).
-			Table("threads t").
-			Where("t.category_id = ? AND t.title ILIKE ?", categoryId, "%"+title+"%").
-			Order("t.updated_at desc").
-			Find(&threads)
+		categoryIds = append(categoryIds, categoryId)
 	}
+
+	result = database.DB.
+		Preload(clause.Associations).
+		Table("threads t").
+		Scopes(ThreadCategoryId(categoryIds), ThreadTitle("%"+title+"%")).
+		Order("t.updated_at desc").
+		Limit(THREADS_PER_PAGE).
+		Offset((pageNumber - 1) * THREADS_PER_PAGE).
+		Find(&threads)
+
+	// get total count for pagination
+	database.DB.
+		Table("threads t").
+		Scopes(ThreadCategoryId(categoryIds), ThreadTitle("%"+title+"%")).
+		Count(&count)
 
 	if result.Error != nil {
 		c.Status(fiber.StatusInternalServerError)
@@ -48,7 +81,10 @@ func GetThreads(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.JSON(threads)
+	return c.JSON(fiber.Map{
+		"threads": threads,
+		"count":   count,
+	})
 }
 
 func GetThread(c *fiber.Ctx) error {
