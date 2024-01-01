@@ -77,7 +77,7 @@ export default function Navbar() {
           </Link>
 
           <IconButton onClick={changeTheme}>
-            <Tooltip title='Toggle dark mode'>
+            <Tooltip title={darkMode ? 'Toggle light mode': 'Toggle dark mode'}>
               {
                 darkMode 
                 ? <DarkMode fontSize='large' /> 
