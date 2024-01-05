@@ -1,4 +1,0 @@
-steps:
-  # running docker-compose
-  - name: 'docker/compose:3.9'
-    args: ['up', '-d']
